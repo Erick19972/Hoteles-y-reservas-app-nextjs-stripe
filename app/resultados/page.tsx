@@ -1,7 +1,6 @@
 import Navbar from "@/src/components/Navbar/Navbar";
 import SearchBar from "@/src/components/SearchBar/SearchBar";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 type Props = {
   searchParams: Promise<{
@@ -9,7 +8,6 @@ type Props = {
   }>;
 };
 
-// 🔥 tipo básico
 type Hotel = {
   id: number | string;
   imagen: string;
@@ -24,24 +22,18 @@ type Hotel = {
 
 export default async function Resultados({ searchParams }: Props) {
 
-  // ✅ FIX async
   const { pais = "" } = await searchParams;
 
   let hoteles: Hotel[] = [];
 
   try {
-    // 🔥 obtener dominio dinámico (clave para Vercel)
-    const host = (await headers()).get("host");
-    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-
+    // 🔥 FORMA CORRECTA
     const res = await fetch(
-      `${protocol}://${host}/api/hoteles?pais=${encodeURIComponent(pais)}`,
+      `/api/hoteles?pais=${encodeURIComponent(pais)}`,
       { cache: "no-store" }
     );
 
-    if (!res.ok) {
-      throw new Error("Error al obtener hoteles");
-    }
+    if (!res.ok) throw new Error("Error al obtener hoteles");
 
     hoteles = await res.json();
 
@@ -78,7 +70,6 @@ export default async function Resultados({ searchParams }: Props) {
           </p>
         </div>
 
-        {/* SEARCHBAR */}
         <div className="absolute bottom-[-40px] w-full flex justify-center z-20">
           <SearchBar />
         </div>
@@ -102,7 +93,6 @@ export default async function Resultados({ searchParams }: Props) {
               key={hotel.id}
               href={`/checkout/${hotel.id}`}
               className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition block"
-              aria-label={`Ver detalles de ${hotel.titulo}`}
             >
               <div className="relative">
                 <img
@@ -143,7 +133,6 @@ export default async function Resultados({ searchParams }: Props) {
                   </span>
                 </div>
               </div>
-
             </Link>
           ))}
         </div>
