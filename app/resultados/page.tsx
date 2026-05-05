@@ -30,7 +30,7 @@ export default async function Resultados({ searchParams }: Props) {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/hoteles?pais=${encodeURIComponent(pais)}`,
+      `${process.env.NEXTAUTH_URL}/api/hoteles?pais=${encodeURIComponent(pais)}`,
       { cache: "no-store" }
     );
 
