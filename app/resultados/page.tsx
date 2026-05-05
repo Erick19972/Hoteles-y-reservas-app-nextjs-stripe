@@ -1,6 +1,7 @@
 import Navbar from "@/src/components/Navbar/Navbar";
 import SearchBar from "@/src/components/SearchBar/SearchBar";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 type Props = {
   searchParams: Promise<{
@@ -29,8 +30,12 @@ export default async function Resultados({ searchParams }: Props) {
   let hoteles: Hotel[] = [];
 
   try {
+    // 🔥 obtener dominio dinámico (clave para Vercel)
+    const host = (await headers()).get("host");
+    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
     const res = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/hoteles?pais=${encodeURIComponent(pais)}`,
+      `${protocol}://${host}/api/hoteles?pais=${encodeURIComponent(pais)}`,
       { cache: "no-store" }
     );
 
@@ -92,11 +97,10 @@ export default async function Resultados({ searchParams }: Props) {
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
-
           {hoteles.map((hotel) => (
             <Link
               key={hotel.id}
-              href={`/checkout/${hotel.id}`} // ✅ limpio (ID puro)
+              href={`/checkout/${hotel.id}`}
               className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition block"
               aria-label={`Ver detalles de ${hotel.titulo}`}
             >
@@ -142,7 +146,6 @@ export default async function Resultados({ searchParams }: Props) {
 
             </Link>
           ))}
-
         </div>
       </section>
     </>
