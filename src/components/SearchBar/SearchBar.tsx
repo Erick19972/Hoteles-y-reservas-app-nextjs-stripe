@@ -16,7 +16,7 @@ export default function SearchBar() {
     !pais ||
     !fechaEntrada ||
     !fechaSalida ||
-    fechaSalida < fechaEntrada;
+    fechaSalida <= fechaEntrada; // 🔥 FIX IMPORTANTE
 
   const handleSearch = () => {
     console.log("🔎 Iniciando búsqueda...");
@@ -24,6 +24,12 @@ export default function SearchBar() {
     console.log("📅 Check-in:", fechaEntrada);
     console.log("🗓️ Check-out:", fechaSalida);
     console.log("⚠️ Formulario inválido:", isInvalid);
+
+    // 🔥 protección extra
+    if (!fechaSalida) {
+      console.error("❌ checkout no definido");
+      return;
+    }
 
     if (isInvalid) {
       console.warn("❌ Búsqueda cancelada: datos inválidos");
@@ -81,12 +87,24 @@ export default function SearchBar() {
           value={fechaEntrada}
           min={hoy}
           onChange={(e) => {
-            console.log("📅 Check-in seleccionado:", e.target.value);
-            setFechaEntrada(e.target.value);
+            const entrada = e.target.value;
 
-            if (fechaSalida && fechaSalida < e.target.value) {
-              console.warn("⚠️ Check-out menor que check-in. Limpiando salida.");
-              setFechaSalida("");
+            console.log("📅 Check-in seleccionado:", entrada);
+
+            setFechaEntrada(entrada);
+
+            // 🔥 auto-fix si salida es inválida
+            if (fechaSalida && fechaSalida <= entrada) {
+              console.warn("⚠️ Check-out inválido. Ajustando automáticamente");
+
+              const nextDay = new Date(entrada);
+              nextDay.setDate(nextDay.getDate() + 1);
+
+              const nuevaSalida = nextDay.toISOString().split("T")[0];
+
+              setFechaSalida(nuevaSalida);
+
+              console.log("🗓️ Nuevo check-out automático:", nuevaSalida);
             }
           }}
           className="bg-transparent outline-none w-full text-gray-800"
