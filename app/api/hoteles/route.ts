@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { hoteles } from "@/src/data/hoteles";
 
-// 🔥 Función para normalizar (quita acentos y hace lowercase)
+// 🔥 Normalizar texto (quita acentos + lowercase)
 function normalizar(texto: string) {
   return texto
     .toLowerCase()
@@ -18,16 +18,17 @@ export async function GET(req: Request) {
 
   let filtrados = hoteles;
 
-  // 🔥 FILTRO POR PAÍS (CORREGIDO)
+  // 🔥 FILTRO ROBUSTO (PRO)
   if (pais) {
-    filtrados = filtrados.filter(
-      (hotel) => normalizar(hotel.pais) === normalizar(pais)
+    const paisNormalizado = normalizar(pais);
+
+    filtrados = filtrados.filter((hotel) =>
+      normalizar(hotel.pais).includes(paisNormalizado)
     );
   }
 
-  // 🔥 (Opcional) validar fechas si quieres después
+  // 🔥 (opcional futuro)
   if (checkin && checkout) {
-    // aquí podrías validar disponibilidad real en el futuro
     console.log("Checkin:", checkin, "Checkout:", checkout);
   }
 
