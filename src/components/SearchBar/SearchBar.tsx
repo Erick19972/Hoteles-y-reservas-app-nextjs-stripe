@@ -10,6 +10,8 @@ export default function SearchBar() {
   const [fechaEntrada, setFechaEntrada] = useState("");
   const [fechaSalida, setFechaSalida] = useState("");
 
+  const hoy = new Date().toISOString().split("T")[0];
+
   const isInvalid =
     !pais ||
     !fechaEntrada ||
@@ -17,7 +19,14 @@ export default function SearchBar() {
     fechaSalida < fechaEntrada;
 
   const handleSearch = () => {
+    console.log("🔎 Iniciando búsqueda...");
+    console.log("🌍 País:", pais);
+    console.log("📅 Check-in:", fechaEntrada);
+    console.log("🗓️ Check-out:", fechaSalida);
+    console.log("⚠️ Formulario inválido:", isInvalid);
+
     if (isInvalid) {
+      console.warn("❌ Búsqueda cancelada: datos inválidos");
       alert("Selecciona un país y un rango de fechas válido");
       return;
     }
@@ -28,7 +37,11 @@ export default function SearchBar() {
       checkout: fechaSalida,
     });
 
-    router.push(`/resultados?${params.toString()}`);
+    const url = `/resultados?${params.toString()}`;
+
+    console.log("✅ URL generada:", url);
+
+    router.push(url);
   };
 
   return (
@@ -44,7 +57,10 @@ export default function SearchBar() {
         🌍
         <select
           value={pais}
-          onChange={(e) => setPais(e.target.value)}
+          onChange={(e) => {
+            console.log("🌍 País seleccionado:", e.target.value);
+            setPais(e.target.value);
+          }}
           className="bg-transparent outline-none w-full text-gray-800 cursor-pointer"
         >
           <option value="México">México</option>
@@ -63,8 +79,16 @@ export default function SearchBar() {
         <input
           type="date"
           value={fechaEntrada}
-          min={new Date().toISOString().split("T")[0]} // 🔥 evita fechas pasadas
-          onChange={(e) => setFechaEntrada(e.target.value)}
+          min={hoy}
+          onChange={(e) => {
+            console.log("📅 Check-in seleccionado:", e.target.value);
+            setFechaEntrada(e.target.value);
+
+            if (fechaSalida && fechaSalida < e.target.value) {
+              console.warn("⚠️ Check-out menor que check-in. Limpiando salida.");
+              setFechaSalida("");
+            }
+          }}
           className="bg-transparent outline-none w-full text-gray-800"
         />
       </div>
@@ -75,8 +99,11 @@ export default function SearchBar() {
         <input
           type="date"
           value={fechaSalida}
-          min={fechaEntrada || undefined} // 🔥 evita salida menor
-          onChange={(e) => setFechaSalida(e.target.value)}
+          min={fechaEntrada || hoy}
+          onChange={(e) => {
+            console.log("🗓️ Check-out seleccionado:", e.target.value);
+            setFechaSalida(e.target.value);
+          }}
           className="bg-transparent outline-none w-full text-gray-800"
         />
       </div>

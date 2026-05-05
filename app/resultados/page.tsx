@@ -19,9 +19,10 @@ type Hotel = {
   rating: number;
   duracion: string;
   precio: number;
+  pais: string; // 🔥 IMPORTANTE (asegúrate que exista)
 };
 
-// 🔥 normalizador (clave para acentos)
+// 🔥 normalizador (quita acentos)
 function normalizar(texto: string) {
   return texto
     .toLowerCase()
@@ -33,13 +34,44 @@ export default async function Resultados({ searchParams }: Props) {
 
   const { pais = "" } = await searchParams;
 
-  // 🔥 FILTRO DIRECTO (SIN FETCH)
+  // 🔥 LOGS IMPORTANTES (los ves en Vercel → Logs)
+  console.log("====================================");
+  console.log("🔎 BÚSQUEDA RECIBIDA");
+  console.log("🌍 País recibido:", pais);
+
+  const paisNormalizado = normalizar(pais);
+
+  console.log("🌍 País normalizado:", paisNormalizado);
+
+  // 🔥 DEBUG DE DATA
+  console.log("📦 Total hoteles disponibles:", hoteles.length);
+
+  hoteles.forEach((h) => {
+    console.log(
+      `🏨 ${h.nombre} | país: ${h.pais} | normalizado: ${normalizar(h.pais)}`
+    );
+  });
+
+  // 🔥 FILTRO
   const hotelesFiltrados: Hotel[] = pais
-    ? hoteles.filter((hotel) =>
-        normalizar(hotel.pais).includes(normalizar(pais)) ||
-        normalizar(hotel.nombre).includes(normalizar(pais))
-      )
+    ? hoteles.filter((hotel) => {
+        const paisHotel = normalizar(hotel.pais);
+        const nombreHotel = normalizar(hotel.nombre);
+
+        const match =
+          paisHotel.includes(paisNormalizado) ||
+          nombreHotel.includes(paisNormalizado);
+
+        console.log(
+          `🔍 Comparando -> ${hotel.nombre} | match: ${match}`
+        );
+
+        return match;
+      })
     : hoteles;
+
+  console.log("✅ RESULTADOS ENCONTRADOS:", hotelesFiltrados.length);
+  console.log("====================================");
 
   return (
     <>
@@ -83,7 +115,7 @@ export default async function Resultados({ searchParams }: Props) {
 
         {hotelesFiltrados.length === 0 && (
           <p className="text-gray-500">
-            No hay resultados disponibles
+            ❌ No hay resultados disponibles
           </p>
         )}
 
