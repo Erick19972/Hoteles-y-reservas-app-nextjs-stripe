@@ -1,16 +1,42 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 const hotels = [
-  { id: 1, name: "Tulum, México", price: "$25,000 MXN", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e" },
-  { id: 2, name: "París, Francia", price: "$37,800 MXN", img: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a" },
-  { id: 3, name: "Maldivas", price: "$64,000 MXN", img: "https://images.unsplash.com/photo-1506929562872-bb421503ef21" },
-  { id: 4, name: "Roma, Italia", price: "$29,000 MXN", img: "https://images.unsplash.com/photo-1526481280691-906c9e9f3c2b" },
-  { id: 5, name: "Tokio, Japón", price: "$45,000 MXN", img: "https://images.unsplash.com/photo-1505060897915-19c3d4d6d95f" },
-  { id: 6, name: "Cancún, México", price: "$18,000 MXN", img: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60f" },
-  { id: 7, name: "Barcelona, España", price: "$33,000 MXN", img: "https://images.unsplash.com/photo-1505764706515-aa95265c5abc" },
-  { id: 8, name: "Dubai", price: "$55,000 MXN", img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" },
-  { id: 9, name: "Nueva York", price: "$40,000 MXN", img: "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59" },
+  { id: "México-1", name: "Tulum, México", price: "$25,000 MXN", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e" },
+  { id: "Francia-1", name: "París, Francia", price: "$37,800 MXN", img: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a" },
+  {
+    id: "Japón-1",
+    name: "Tokio, Japón",
+    price: "$45,000 MXN",
+    img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e"
+  },
+  {
+    id: "Italia-1",
+    name: "Roma, Italia",
+    price: "$29,000 MXN",
+    img: "https://images.unsplash.com/photo-1529260830199-42c24126f198"
+  },
+  {
+    id: "Japón-1",
+    name: "Tokio, Japón",
+    price: "$45,000 MXN",
+    img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e"
+  },
+  {
+    id: "México-2",
+    name: "Cancún, México",
+    price: "$18,000 MXN",
+    img: "https://images.unsplash.com/photo-1518105779142-d975f22f1b0a"
+  },
+  { id: "España-1", name: "Barcelona, España", price: "$33,000 MXN", img: "https://images.unsplash.com/photo-1543783207-ec64e4d95325" },
+  {
+    id: "Japón-1",
+    name: "Tokio, Japón",
+    price: "$45,000 MXN",
+    img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e"
+  },
+  { id: "Francia-1", name: "París, Francia", price: "$37,800 MXN", img: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a" },
 ];
 
 export default function Carousel() {
@@ -35,7 +61,7 @@ export default function Carousel() {
   return (
     <section className="bg-[#eaf3f1] py-10 px-6 relative">
 
-      {/* BOTÓN IZQUIERDA */}
+      {/* IZQUIERDA */}
       <button
         onClick={prev}
         className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-3 rounded-full"
@@ -46,45 +72,51 @@ export default function Carousel() {
       {/* GRID */}
       <div className="grid md:grid-cols-3 gap-8">
         {visibleHotels.map((hotel) => (
-          <div key={hotel.id} className="bg-white rounded-3xl p-4 shadow-md hover:shadow-xl transition">
+          <Link
+            key={hotel.id}
+            href={`/checkout/${encodeURIComponent(hotel.id)}`} // 🔥 IMPORTANTE
+            className="block"
+          >
+            <div className="bg-white rounded-3xl p-4 shadow-md hover:shadow-xl hover:scale-[1.02] transition cursor-pointer">
 
-            <div className="relative">
-              <img
-                src={hotel.img}
-                className="rounded-2xl h-[220px] w-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={hotel.img}
+                  className="rounded-2xl h-[220px] w-full object-cover"
+                />
 
-              <span className="absolute bottom-3 right-3 bg-white p-2 rounded-full">
-                ❤️
-              </span>
-            </div>
-
-            <div className="mt-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-bold text-lg">{hotel.name}</h3>
-                <span className="text-yellow-400">★★★★★</span>
-              </div>
-
-              <p className="text-gray-500 text-sm mt-1">
-                Experiencia única en destino premium.
-              </p>
-
-              <div className="flex justify-between mt-4 items-center">
-                <span className="text-gray-400 text-sm">
-                  7 Días / 6 Noches
-                </span>
-
-                <span className="text-teal-700 font-bold text-lg">
-                  {hotel.price}
+                <span className="absolute bottom-3 right-3 bg-white p-2 rounded-full">
+                  ❤️
                 </span>
               </div>
-            </div>
 
-          </div>
+              <div className="mt-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-lg">{hotel.name}</h3>
+                  <span className="text-yellow-400">★★★★★</span>
+                </div>
+
+                <p className="text-gray-500 text-sm mt-1">
+                  Experiencia única en destino premium.
+                </p>
+
+                <div className="flex justify-between mt-4 items-center">
+                  <span className="text-gray-400 text-sm">
+                    7 Días / 6 Noches
+                  </span>
+
+                  <span className="text-teal-700 font-bold text-lg">
+                    {hotel.price}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </Link>
         ))}
       </div>
 
-      {/* BOTÓN DERECHA */}
+      {/* DERECHA */}
       <button
         onClick={next}
         className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-3 rounded-full"
