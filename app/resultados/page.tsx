@@ -1,6 +1,7 @@
 import Navbar from "@/src/components/Navbar/Navbar";
 import SearchBar from "@/src/components/SearchBar/SearchBar";
 import Link from "next/link";
+import { hoteles } from "@/src/data/hoteles";
 
 type Props = {
   searchParams: Promise<{
@@ -20,26 +21,25 @@ type Hotel = {
   precio: number;
 };
 
+// 🔥 normalizador (clave para acentos)
+function normalizar(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 export default async function Resultados({ searchParams }: Props) {
 
   const { pais = "" } = await searchParams;
 
-  let hoteles: Hotel[] = [];
-
-  try {
-    // 🔥 FORMA CORRECTA
-    const res = await fetch(
-      `/api/hoteles?pais=${encodeURIComponent(pais)}`,
-      { cache: "no-store" }
-    );
-
-    if (!res.ok) throw new Error("Error al obtener hoteles");
-
-    hoteles = await res.json();
-
-  } catch (error) {
-    console.error("Error fetch hoteles:", error);
-  }
+  // 🔥 FILTRO DIRECTO (SIN FETCH)
+  const hotelesFiltrados: Hotel[] = pais
+    ? hoteles.filter((hotel) =>
+        normalizar(hotel.pais).includes(normalizar(pais)) ||
+        normalizar(hotel.nombre).includes(normalizar(pais))
+      )
+    : hoteles;
 
   return (
     <>
@@ -81,14 +81,14 @@ export default async function Resultados({ searchParams }: Props) {
           Resultados en {pais || "Destino"}
         </h1>
 
-        {hoteles.length === 0 && (
+        {hotelesFiltrados.length === 0 && (
           <p className="text-gray-500">
             No hay resultados disponibles
           </p>
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
-          {hoteles.map((hotel) => (
+          {hotelesFiltrados.map((hotel) => (
             <Link
               key={hotel.id}
               href={`/checkout/${hotel.id}`}
