@@ -2,6 +2,7 @@ import Navbar from "@/src/components/Navbar/Navbar";
 import SearchBar from "@/src/components/SearchBar/SearchBar";
 import Link from "next/link";
 import { hoteles } from "@/src/data/hoteles";
+import { headers } from "next/headers";
 
 type Props = {
   searchParams: Promise<{
@@ -22,7 +23,6 @@ type Hotel = {
   pais: string;
 };
 
-// 🔥 normalizador MEJORADO
 function normalizar(texto: string) {
   return texto
     ?.toLowerCase()
@@ -33,54 +33,35 @@ function normalizar(texto: string) {
 
 export default async function Resultados({ searchParams }: Props) {
 
+  // ✅ CORRECTO EN NEXT 16
   const { pais = "" } = await searchParams;
 
-  console.log("====================================");
-  console.log("🔎 DEBUG RESULTADOS");
-  console.log("🌍 RAW pais:", pais);
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  console.log("🌐 HOST:", host);
+  console.log("🚀 URL:", `${protocol}://${host}/resultados?pais=${pais}`);
 
   const paisNormalizado = normalizar(pais);
 
-  console.log("🌍 NORMALIZADO:", paisNormalizado);
-
-  console.log("📦 TOTAL HOTELES:", hoteles.length);
-
-  // 🔥 DEBUG DETALLADO
-  const hotelesFiltrados = hoteles.filter((hotel, index) => {
-    const paisOriginal = hotel.pais;
+  const hotelesFiltrados = hoteles.filter((hotel) => {
     const paisHotel = normalizar(hotel.pais);
     const nombreHotel = normalizar(hotel.nombre);
 
-    const matchPais = paisHotel.includes(paisNormalizado);
-    const matchNombre = nombreHotel.includes(paisNormalizado);
-
-    const match = matchPais || matchNombre;
-
-    console.log("------------");
-    console.log(`🏨 Hotel #${index}`);
-    console.log("Nombre:", hotel.nombre);
-    console.log("Pais original:", paisOriginal);
-    console.log("Pais normalizado:", paisHotel);
-    console.log("Match pais:", matchPais);
-    console.log("Match nombre:", matchNombre);
-    console.log("RESULTADO FINAL:", match);
-
-    return pais ? match : true;
+    return pais
+      ? paisHotel.includes(paisNormalizado) ||
+          nombreHotel.includes(paisNormalizado)
+      : true;
   });
 
-  console.log("====================================");
-  console.log("✅ RESULTADOS FINALES:", hotelesFiltrados.length);
-
-  if (hotelesFiltrados.length === 0) {
-    console.error("❌ NO HAY MATCHES → revisar data");
-  }
-
-  console.log("====================================");
+  console.log("✅ RESULTADOS:", hotelesFiltrados.length);
 
   return (
     <>
       <Navbar />
 
+      {/* HERO */}
       <section className="relative w-full h-[420px]">
         <img
           src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop"
@@ -110,6 +91,7 @@ export default async function Resultados({ searchParams }: Props) {
         </div>
       </section>
 
+      {/* RESULTADOS */}
       <section className="bg-[#f5f7f6] min-h-screen px-6 pt-20 pb-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Resultados en {pais || "Destino"}
