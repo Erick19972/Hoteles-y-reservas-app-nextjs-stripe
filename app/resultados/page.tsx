@@ -19,65 +19,68 @@ type Hotel = {
   rating: number;
   duracion: string;
   precio: number;
-  pais: string; // 🔥 IMPORTANTE (asegúrate que exista)
+  pais: string;
 };
 
-// 🔥 normalizador (quita acentos)
+// 🔥 normalizador MEJORADO
 function normalizar(texto: string) {
   return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    ?.toLowerCase()
+    ?.trim()
+    ?.normalize("NFD")
+    ?.replace(/[\u0300-\u036f]/g, "");
 }
 
 export default async function Resultados({ searchParams }: Props) {
 
   const { pais = "" } = await searchParams;
 
-  // 🔥 LOGS IMPORTANTES (los ves en Vercel → Logs)
   console.log("====================================");
-  console.log("🔎 BÚSQUEDA RECIBIDA");
-  console.log("🌍 País recibido:", pais);
+  console.log("🔎 DEBUG RESULTADOS");
+  console.log("🌍 RAW pais:", pais);
 
   const paisNormalizado = normalizar(pais);
 
-  console.log("🌍 País normalizado:", paisNormalizado);
+  console.log("🌍 NORMALIZADO:", paisNormalizado);
 
-  // 🔥 DEBUG DE DATA
-  console.log("📦 Total hoteles disponibles:", hoteles.length);
+  console.log("📦 TOTAL HOTELES:", hoteles.length);
 
-  hoteles.forEach((h) => {
-    console.log(
-      `🏨 ${h.nombre} | país: ${h.pais} | normalizado: ${normalizar(h.pais)}`
-    );
+  // 🔥 DEBUG DETALLADO
+  const hotelesFiltrados = hoteles.filter((hotel, index) => {
+    const paisOriginal = hotel.pais;
+    const paisHotel = normalizar(hotel.pais);
+    const nombreHotel = normalizar(hotel.nombre);
+
+    const matchPais = paisHotel.includes(paisNormalizado);
+    const matchNombre = nombreHotel.includes(paisNormalizado);
+
+    const match = matchPais || matchNombre;
+
+    console.log("------------");
+    console.log(`🏨 Hotel #${index}`);
+    console.log("Nombre:", hotel.nombre);
+    console.log("Pais original:", paisOriginal);
+    console.log("Pais normalizado:", paisHotel);
+    console.log("Match pais:", matchPais);
+    console.log("Match nombre:", matchNombre);
+    console.log("RESULTADO FINAL:", match);
+
+    return pais ? match : true;
   });
 
-  // 🔥 FILTRO
-  const hotelesFiltrados: Hotel[] = pais
-    ? hoteles.filter((hotel) => {
-        const paisHotel = normalizar(hotel.pais);
-        const nombreHotel = normalizar(hotel.nombre);
+  console.log("====================================");
+  console.log("✅ RESULTADOS FINALES:", hotelesFiltrados.length);
 
-        const match =
-          paisHotel.includes(paisNormalizado) ||
-          nombreHotel.includes(paisNormalizado);
+  if (hotelesFiltrados.length === 0) {
+    console.error("❌ NO HAY MATCHES → revisar data");
+  }
 
-        console.log(
-          `🔍 Comparando -> ${hotel.nombre} | match: ${match}`
-        );
-
-        return match;
-      })
-    : hoteles;
-
-  console.log("✅ RESULTADOS ENCONTRADOS:", hotelesFiltrados.length);
   console.log("====================================");
 
   return (
     <>
       <Navbar />
 
-      {/* HERO */}
       <section className="relative w-full h-[420px]">
         <img
           src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop"
@@ -107,7 +110,6 @@ export default async function Resultados({ searchParams }: Props) {
         </div>
       </section>
 
-      {/* RESULTADOS */}
       <section className="bg-[#f5f7f6] min-h-screen px-6 pt-20 pb-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Resultados en {pais || "Destino"}
